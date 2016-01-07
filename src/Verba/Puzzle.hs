@@ -41,7 +41,7 @@ getNeightbours (i, j) puz =
 allPositions :: Puzzle -> [(Int, Int)]
 allPositions puz = 
     let (r, c) = (nrows puz, ncols puz) in
-    map (fn c) [0..(r * c)]
+    map (fn c) [0..(r * c) - 1]
         where fn nc i = ((i `div` nc) + 1, (i `mod` nc) + 1)
 
 -- Consumes a character in the specified location
