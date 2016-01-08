@@ -1,6 +1,7 @@
 module Main where
 
 import Verba.CLI (runCLI)
+import Paths_Verba
 
 main :: IO ()
-main = runCLI "dict/it.dic"
+main = getDataFileName "dict/it.dic" >>= runCLI

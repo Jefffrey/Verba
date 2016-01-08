@@ -1,5 +1,5 @@
 name:                Verba
-version:             0.1.0.3
+version:             0.1.0.4
 synopsis:            A solver for the WordBrain game
 description:         A solver for the WordBrain game
 license:             MIT
