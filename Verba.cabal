@@ -1,5 +1,5 @@
 name:                Verba
-version:             0.1.0.1
+version:             0.1.0.3
 synopsis:            A solver for the WordBrain game
 description:         A solver for the WordBrain game
 license:             MIT
@@ -9,6 +9,7 @@ maintainer:          tpigarelli@gmail.com
 category:            Game
 build-type:          Simple
 cabal-version:       >=1.10
+data-files:          dict/it.dic
 
 source-repository head
     type:         git

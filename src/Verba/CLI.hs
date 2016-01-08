@@ -53,5 +53,5 @@ confirmSolutions n correctOnes (sol:sols) = do
             let newCorrectOnes = guessedWord:correctOnes in
             if length newCorrectOnes == n
                 then putStrLn "My job here is done! :)"
-                else confirmSolutions n newCorrectOnes (filter (elem guessedWord) sols)
+                else confirmSolutions n newCorrectOnes (filter (elem guessedWord) (sol:sols))
         else confirmSolutions n correctOnes (filter (not . elem guessedWord) sols)
