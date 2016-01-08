@@ -1,6 +1,7 @@
 module Verba.Dictionary where
 
 import Data.Map (Map)
+import Data.Maybe (fromMaybe)
 import qualified Data.Map as Map
 import System.IO
 
@@ -21,3 +22,7 @@ load n file = withFile file ReadMode $ (\handle -> do
     contents <- hGetContents handle
     let wordList = takeWhile ((<= n) . length) $ words contents
     return $! foldr insertWord Map.empty wordList)
+
+-- Gets all the words with a certain length.
+wordsWithLength :: Int -> Dictionary -> [String]
+wordsWithLength n = fromMaybe [] . Map.lookup n
