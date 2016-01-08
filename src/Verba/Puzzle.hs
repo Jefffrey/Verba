@@ -1,6 +1,7 @@
-module Verba.Puzzle where
+module Verba.Puzzle (Puzzle, consume, ask, fromLists) where
 
-import Data.Matrix as Matrix
+import Data.Matrix (Matrix, (!), setElem, ncols, nrows)
+import qualified Data.Matrix as Matrix
 import Data.List (intercalate)
 import Data.Maybe (fromMaybe)
 import Control.Monad (replicateM)
@@ -9,24 +10,32 @@ import Control.Monad (replicateM)
 newtype Puzzle = Puzzle { getMatrix :: Matrix (Maybe Char) }
 
 instance Show Puzzle where
-    show = map (fromMaybe ' ') . intercalate [Just '\n'] . toLists . getMatrix
+    show = map (fromMaybe ' ') . intercalate [Just '\n'] . Matrix.toLists . getMatrix
+
+-- Moves the element in the specified position
+-- down one cell and puts nothing in its place if the
+-- current element has something and the cell below doesn't.
+sortWithBelow :: (Int, Int) -> Puzzle -> Puzzle
+sortWithBelow current@(i, j) puz@(Puzzle mat) = 
+    let below = (i + 1, j) in
+    if mat ! current /= Nothing && mat ! below == Nothing then
+        Puzzle $ setElem Nothing current $ setElem (mat ! current) below mat
+    else puz
 
 -- If the above cell contains something and the below
 -- one doesn't, it drops the above cell down
 fixColumnCell :: (Int, Int) -> Puzzle -> Puzzle
-fixColumnCell (1, _) (Puzzle puz) = (Puzzle puz)
-fixColumnCell (i, j) (Puzzle puz) =
-    let aboveIx = (i - 1, j)
-        currentIx = (i, j) in
-    if (puz ! currentIx) == Nothing && (puz ! aboveIx) /= Nothing then
-        Puzzle $ setElem Nothing aboveIx $ setElem (puz ! aboveIx) currentIx puz
-    else Puzzle puz
+fixColumnCell (1, _) puz = puz 
+fixColumnCell (i, j) puz =
+    let calcIx x = (x, j) in
+    foldr sortWithBelow puz (reverse . map calcIx $ [1..(i - 1)])
 
 -- Takes a column index and applies gravity
 -- to the column from the bottom up. 
 fixColumn :: Int -> Puzzle -> Puzzle
 fixColumn j puz@(Puzzle mat) = 
-    foldr fixColumnCell puz (reverse $ map (\i -> (i, j)) [1..nrows mat])
+    let calcIx i = (i, j) in
+    foldr fixColumnCell puz (reverse . map calcIx $ [1..nrows mat])
 
 -- Drops a character if the underlying cell
 -- is empty.
@@ -81,3 +90,7 @@ ask = do
     hd <- getLine
     tl <- replicateM (length hd - 1) getLine
     return . Puzzle . Matrix.fromLists . map (map Just) $ hd : tl
+
+-- Constructs a puzzle from a list of list
+-- of characters.o
+fromLists = Puzzle . Matrix.fromLists
