@@ -5,30 +5,26 @@ import System.IO (hFlush, stdout)
 import Verba.Solver (solve)
 import Verba.Dictionary (Dictionary)
 import Verba.Puzzle (Puzzle)
+import Verba.Formatting
+import Verba.Utils
 import qualified Verba.Dictionary as Dictionary
 import qualified Verba.Puzzle as Puzzle
 
 runCLI :: FilePath -> IO ()
 runCLI dictFile = do
-    putStrLn "Puzzle:"
+    putStrLn $ blue "Matrix (row by row):"
     puz <- Puzzle.ask
-    putStr "Word lengths (separated by space): "
+    putStr $ blue "Word lengths (separated by space): "
     hFlush stdout
     lengths <- getLine >>= (return . map read . words)
+    putStr $ blue "Known correct words (separated by space): "
+    hFlush stdout
+    knownWords <- getLine >>= (return . words)
     dict <- Dictionary.load (maximum lengths) dictFile
     let sols = solve dict lengths puz
-    confirmSolutions (length lengths) [] sols 
-
--- Checks if the first list is contained in the
--- second list.
-supersetOf :: (Eq a) => [a] -> [a] -> Bool
-supersetOf set maybeSs = all (\x -> x `elem` maybeSs) set
-
-green :: String -> String
-green str = "\o33[0;32m" ++ str ++ "\o33[0m"
-
-orange :: String -> String
-orange str = "\o33[0;33m" ++ str ++ "\o33[0m"
+    putStrLn "---------------------------------"
+    let initFilter = filter (supersetOf knownWords) sols
+    confirmSolutions (length lengths) knownWords initFilter
 
 putGuess :: String -> [String] -> [String] -> IO ()
 putGuess guessedWord correctOnes guess = do
