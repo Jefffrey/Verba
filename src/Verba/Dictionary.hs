@@ -11,7 +11,7 @@ type Dictionary = Map Int [String]
 -- based on its length.
 insertWord :: String -> Dictionary -> Dictionary
 insertWord w = Map.alter fn (length w)
-    where fn Nothing = Just []
+    where fn Nothing = Just [w]
           fn (Just lst) = Just $ w : lst
 
 -- Loads the dictionary so that only words up to
