@@ -25,7 +25,7 @@ empty = Map.empty
 -- those words in the dictionary.
 load :: String -> Int -> Dictionary -> IO Dictionary
 load lang len dict = do
-    fileName <- getDataFileName $ "dict/" ++ lang ++ "-" ++ show len ++ ".dict"
+    fileName <- getDataFileName $ "dict/" ++ lang ++ "/" ++ lang ++ "-" ++ show len ++ ".dict"
     words <- readFile fileName >>= (return . words)
     return $ Map.insert len words dict
 
