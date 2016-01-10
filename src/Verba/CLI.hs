@@ -10,8 +10,8 @@ import Verba.Utils
 import qualified Verba.Dictionary as Dictionary
 import qualified Verba.Puzzle as Puzzle
 
-runCLI :: FilePath -> IO ()
-runCLI dictFile = do
+runCLI :: String -> IO ()
+runCLI lang = do
     putStrLn $ blue "Matrix (row by row):"
     puz <- Puzzle.ask
     putStr $ blue "Word lengths (separated by space): "
@@ -20,7 +20,7 @@ runCLI dictFile = do
     putStr $ blue "Known correct words (separated by space): "
     hFlush stdout
     knownWords <- getLine >>= (return . words)
-    dict <- Dictionary.load (maximum lengths) dictFile
+    dict <- Dictionary.loadAll lang lengths
     let sols = solve dict lengths puz
     putStrLn "---------------------------------"
     let initFilter = filter (supersetOf knownWords) sols

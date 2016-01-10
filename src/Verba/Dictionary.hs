@@ -4,6 +4,8 @@ import Data.Map (Map)
 import Data.Maybe (fromMaybe)
 import qualified Data.Map as Map
 import System.IO
+import Paths_Verba
+import Data.Foldable (foldrM)
 
 type Dictionary = Map Int [String]
 
@@ -14,14 +16,21 @@ insertWord w = Map.alter fn (length w)
     where fn Nothing = Just [w]
           fn (Just lst) = Just $ w : lst
 
--- Loads the dictionary so that only words up to
--- the specified length are loaded.
-load :: Int -> FilePath -> IO Dictionary
-load n file = withFile file ReadMode $ (\handle -> do
-    hSetEncoding handle latin1
-    contents <- hGetContents handle
-    let wordList = takeWhile ((<= n) . length) $ words contents
-    return $! foldr insertWord Map.empty wordList)
+empty :: Dictionary
+empty = Map.empty
+
+-- Takes a string representing the name of
+-- the language ("it" for "Italian", "en" for "English")
+-- and the length of the words you want to load and loads
+-- those words in the dictionary.
+load :: String -> Int -> Dictionary -> IO Dictionary
+load lang len dict = do
+    fileName <- getDataFileName $ "dict/" ++ lang ++ "-" ++ show len ++ ".dict"
+    words <- readFile fileName >>= (return . words)
+    return $ Map.insert len words dict
+
+loadAll :: String -> [Int] -> IO Dictionary
+loadAll lang lns = foldrM (load lang) empty lns
 
 -- Gets all the words with a certain length.
 wordsWithLength :: Int -> Dictionary -> [String]

@@ -1,4 +1,4 @@
-module Verba.Puzzle (Puzzle, consume, ask, fromLists) where
+module Verba.Puzzle (Puzzle, consume, ask, fromLists, applyGravity) where
 
 import Data.Matrix (Matrix, (!), setElem, ncols, nrows)
 import qualified Data.Matrix as Matrix
@@ -28,14 +28,14 @@ fixColumnCell :: (Int, Int) -> Puzzle -> Puzzle
 fixColumnCell (1, _) puz = puz 
 fixColumnCell (i, j) puz =
     let calcIx x = (x, j) in
-    foldr sortWithBelow puz (reverse . map calcIx $ [1..(i - 1)])
+    foldl (flip sortWithBelow) puz (map calcIx $ [1..(i - 1)])
 
 -- Takes a column index and applies gravity
 -- to the column from the bottom up. 
 fixColumn :: Int -> Puzzle -> Puzzle
 fixColumn j puz@(Puzzle mat) = 
     let calcIx i = (i, j) in
-    foldr fixColumnCell puz (reverse . map calcIx $ [1..nrows mat])
+    foldr fixColumnCell puz (map calcIx $ [1..nrows mat])
 
 -- Drops a character if the underlying cell
 -- is empty.
