@@ -12,28 +12,41 @@ import qualified Verba.Puzzle as Puzzle
 
 runCLI :: String -> IO ()
 runCLI lang = do
-    putStrLn $ blue "Matrix (row by row):"
+    putStrLn . label . unlines $
+        [ "What's the matrix row by"
+        , "row without spaces?"
+        ]
     puz <- Puzzle.ask
-    putStr $ blue "Word lengths (separated by space): "
-    hFlush stdout
+    putStr "\n"
+    putStrLn . label . unlines $
+        [ "What's the length of the"
+        , "words separated by space?"
+        ]
     lengths <- getLine >>= (return . map read . words)
-    putStr $ blue "Known correct words (separated by space): "
-    hFlush stdout
+    putStr "\n"
+    putStrLn . label . unlines $ 
+        [ "Do you know some of the"
+        , "words already?"
+        ]
     knownWords <- getLine >>= (return . words)
+    putStr "\n"
     dict <- Dictionary.loadAll lang lengths
     let sols = solve dict lengths puz
-    putStrLn "---------------------------------"
+    putStrLn . label . unlines $ 
+        [ "Answer 'y' or press enter to"
+        , "the following questions."
+        ]
     let initFilter = filter (supersetOf knownWords) sols
     confirmSolutions (length lengths) knownWords initFilter
 
 putGuess :: String -> [String] -> [String] -> IO ()
 putGuess guessedWord correctOnes guess = do
     let styledWords = map (\w -> if (w `elem` correctOnes)
-            then green w
+            then success w
             else if w == guessedWord
-                then orange w
+                then warning w
                 else w) guess
-    putStr $ (intercalate " " styledWords) ++ "? "
+    putStr $ label "Is it " ++ (intercalate " " styledWords) ++ label "? "
 
 -- Takes a list of known solutions and a 
 -- list of grouped solutions (pair of first word and 
@@ -52,6 +65,6 @@ confirmSolutions n correctOnes (sol:sols) = do
         then 
             let newCorrectOnes = guessedWord:correctOnes in
             if length newCorrectOnes == n
-                then putStrLn "My job here is done! :)"
+                then putStrLn . label $ "\nSeems like we are done."
                 else confirmSolutions n newCorrectOnes (filter (elem guessedWord) (sol:sols))
         else confirmSolutions n correctOnes (filter (not . elem guessedWord) sols)
